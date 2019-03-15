@@ -3,7 +3,9 @@ package ua.in.ukravto.phones.domain;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ResponseToken<T> {
+import java.util.List;
+
+public class ResponseListAPI<T> {
     @SerializedName("result")
     @Expose
     private Boolean result;
@@ -12,7 +14,7 @@ public class ResponseToken<T> {
     private String error;
     @SerializedName("body")
     @Expose
-    private T body;
+    private List<T> body;
 
     public Boolean getResult() {
         return result;
@@ -23,6 +25,9 @@ public class ResponseToken<T> {
     }
 
     public String getError() {
+        if (error == null){
+            error = "";
+        }
         return error;
     }
 
@@ -30,11 +35,11 @@ public class ResponseToken<T> {
         this.error = error;
     }
 
-    public T getBody() {
+    public List<T> getBody() {
         return body;
     }
 
-    public void setBody(T body) {
+    public void setBody(List<T> body) {
         this.body = body;
     }
 }

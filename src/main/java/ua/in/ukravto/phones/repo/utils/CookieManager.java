@@ -1,21 +1,23 @@
 package ua.in.ukravto.phones.repo.utils;
 
-import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class CookieManager {
 
-    private VaadinResponse response;
+    private HttpServletResponse response;
 
-    public CookieManager(VaadinResponse response){
+    public CookieManager(HttpServletResponse response){
         this.response = response;
     }
 
     public Cookie getCookieByName(final String name) {
         // Fetch all cookies from the request
-        Cookie[] cookies = VaadinService.getCurrentRequest().getCookies();
+        Cookie[] cookies = ((HttpServletRequest)VaadinRequest.getCurrent()).getCookies();
 
         // Iterate to find cookie by its name
         for (Cookie cookie : cookies) {
@@ -27,13 +29,14 @@ public class CookieManager {
     }
 
     public Cookie createCookie(final String name, final String value, final int maxAge) {
+
         // Create a new cookie
         final Cookie cookie = new Cookie(name, value);
 
         cookie.setMaxAge(maxAge);
 
         // Set the cookie path.
-        cookie.setPath(VaadinService.getCurrentRequest().getContextPath());
+        cookie.setPath(((HttpServletRequest)VaadinRequest.getCurrent()).getContextPath());
 
         // Save cookie
         addCookie(cookie);
