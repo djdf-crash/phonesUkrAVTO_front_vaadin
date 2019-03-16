@@ -6,12 +6,11 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
 import retrofit2.Response;
 import ua.in.ukravto.phones.domain.Employee;
@@ -23,11 +22,11 @@ import ua.in.ukravto.phones.repo.utils.ConstantAPI;
 import ua.in.ukravto.phones.repo.utils.CookieManager;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @Route("main")
 public class MainView extends VerticalLayout {
@@ -45,17 +44,19 @@ public class MainView extends VerticalLayout {
 
     public MainView() {
 
-        CookieManager cm = new CookieManager((VaadinServletResponse) VaadinResponse.getCurrent());
-        Cookie cookie = cm.getCookieByName(ConstantAPI.COOKIE_NAME);
-        if (cookie == null){
-            UI.getCurrent().navigate("login");
+        CookieManager cm = new CookieManager((HttpServletResponse) VaadinService.getCurrentResponse());
+        Cookie c = cm.getCookieByName(ConstantAPI.COOKIE_NAME);
+        if (c == null){
+            UI.getCurrent().navigate(StartMain.class);
             UI.getCurrent().getPage().reload();
             return;
         }
-        this.token = cookie.getValue();
-        if (token.isEmpty()){
-            UI.getCurrent().navigate("login");
+
+        this.token = c.getValue();
+        if (this.token.isEmpty()){
+            UI.getCurrent().navigate(StartMain.class);
             UI.getCurrent().getPage().reload();
+            return;
         }
         this.mAPI = RestClientBuilder.getService();
 
@@ -132,8 +133,10 @@ public class MainView extends VerticalLayout {
         logout.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
             CookieManager cookieManager = new CookieManager((VaadinServletResponse) VaadinResponse.getCurrent());
             cookieManager.destroyCookieByName(ConstantAPI.COOKIE_NAME);
-            UI.getCurrent().navigate("");
-            UI.getCurrent().getPage().reload();
+            UI.getCurrent().getSession().close();
+            logout.getUI().ifPresent(ui -> ui.navigate(StartMain.class));
+//            UI.getCurrent().navigate("");
+//            UI.getCurrent().getPage().reload();
         });
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
@@ -217,15 +220,5 @@ public class MainView extends VerticalLayout {
         });
 
         colName.setHeader(searchFieldName);
-    }
-
-    public interface ExtendedSerializablePredicate<T> extends SerializablePredicate<T> {
-
-        default ExtendedSerializablePredicate<T> and(ExtendedSerializablePredicate<? super T> other) {
-            Objects.requireNonNull(other);
-            return (t) -> test(t) && other.test(t);
-        }
-
-
     }
 }

@@ -41,13 +41,13 @@ public class LoginView extends VerticalLayout {
                 Response<ResponseAPI<String>> resp = api.logIn(loginEvent.getUsername(), UI.getCurrent().getSession().getBrowser().getAddress()).execute();
 
                 if (resp.isSuccessful() && resp.body() != null && resp.body().getError().isEmpty()) {
-
                     loginForm.setError(false);
 
                     CookieManager cookieManager = new CookieManager((VaadinServletResponse) VaadinResponse.getCurrent());
                     cookieManager.createCookie(ConstantAPI.COOKIE_NAME, resp.body().getBody(), 36000);
 
-                    UI.getCurrent().navigate("");
+                    UI.getCurrent().getSession().setAttribute("token",resp.body().getBody());
+                    UI.getCurrent().navigate(MainView.class);
                     UI.getCurrent().getPage().reload();
                 }else {
                     Notification.show(resp.body().getError(), 3000, Notification.Position.TOP_CENTER);

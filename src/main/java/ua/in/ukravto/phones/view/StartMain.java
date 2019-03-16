@@ -19,10 +19,10 @@ public class StartMain extends VerticalLayout {
         this.mCookieManager = new CookieManager((VaadinServletResponse) VaadinResponse.getCurrent());
         Cookie cookie = mCookieManager.getCookieByName(ConstantAPI.COOKIE_NAME);
         if (cookie == null){
-            UI.getCurrent().navigate("login");
+            UI.getCurrent().navigate(LoginView.class);
             UI.getCurrent().getPage().reload();
         }else {
-            UI.getCurrent().navigate("main");
+            UI.getCurrent().navigate(MainView.class);
             UI.getCurrent().getPage().reload();
         }
     }
